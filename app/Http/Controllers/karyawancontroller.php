@@ -7,42 +7,56 @@ use Illuminate\Http\Request;
 
 class KaryawanController extends Controller
 {
-    public function index()
-    {
-        $karyawans = Karyawan::all();
-        return view('karyawans.index', compact('karyawans'));
-    }
+public function index()
+{
+    $karyawans = Karyawan::all();
+    return view('karyawans.index', compact('karyawans'));
+}
 
-    public function show($id)
-    {
-        $karyawan = Karyawan::findOrFail($id);
-        return view('karyawans.show', compact('karyawan'));
-    }
+public function create()
+{
+    return view('karyawans.create');
+}
 
-    public function edit($id)
-    {
-        $karyawan = Karyawan::findOrFail($id);
-        return view('karyawans.edit', compact('karyawan'));
-    }
+public function store(Request $request)
+{
+    $request->validate([
+        'nama' => 'required',
+        'jabatan' => 'required',
+        'email' => 'required|email|unique:karyawans,email',
+    ]);
 
-    public function update(Request $request, $id)
-    {
-        $karyawan = Karyawan::findOrFail($id);
-        $karyawan->update($request->all());
-        return redirect('/karyawans')->with('success', 'Data berhasil diupdate');
-    }
+    Karyawan::create($request->all());
+    return redirect()->route('karyawans.index')->with('success', 'Karyawan berhasil ditambahkan!');
+}
 
-    public function delete($id)
-    {
-        $karyawan = Karyawan::findOrFail($id);
-        return view('karyawans.delete', compact('karyawan'));
-    }
-    
-    public function destroy($id)
+public function edit($id)
+{
+    $karyawan = Karyawan::findOrFail($id);
+    return view('karyawans.edit', compact('karyawan'));
+}
+
+public function update(Request $request, $id)
+{
+    $karyawan = Karyawan::findOrFail($id);
+
+    $request->validate([
+        'nama' => 'required',
+        'jabatan' => 'required',
+        'email' => 'required|email|unique:karyawans,email,' . $id,
+    ]);
+
+    $karyawan->update($request->all());
+    return redirect()->route('karyawans.index')->with('success', 'Data karyawan diperbarui.');
+}
+
+public function destroy($id)
 {
     $karyawan = Karyawan::findOrFail($id);
     $karyawan->delete();
-    return redirect('/karyawans')->with('success', 'Karyawan berhasil dihapus');
+    return redirect()->route('karyawans.index')->with('success', 'Karyawan dihapus.');
 }
 
+
 }
+
